@@ -2,6 +2,8 @@ package com.devsuperior.services;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +41,19 @@ public class ClientService {
 		
 		entity = repository.save(entity);
 		return new ClientDTO(entity);
+	}
+	
+	@Transactional
+	public ClientDTO update(Long id, ClientDTO dto) {
+		try {
+			Client entity = repository.getReferenceById(id);
+			copyEntityToDto(dto, entity);
+			entity = repository.save(entity);
+			
+			return new ClientDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found: " + id);
+		}
 	}
 	
 	private void copyEntityToDto(ClientDTO dto, Client entity) {
